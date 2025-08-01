@@ -27,7 +27,7 @@
     "module": "ESNext",
     "noEmit": true,
 
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "typeRoots": ["./node_modules"],
 
     "noErrorTruncation": true // TLDR - Don't truncate errors (useful for debugging)

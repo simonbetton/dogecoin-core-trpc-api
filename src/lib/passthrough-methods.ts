@@ -1,25 +1,22 @@
 import { z } from "zod";
+import { getrawtransaction } from "./methods/getrawtransaction";
+import { estimatesmartfee } from "./methods/estimatesmartfee";
+import { getnetworkinfo } from "./methods/getnetworkinfo";
 
-const RPCResponse = z.object({
+export const RPCResponse = z.object({
   result: z.unknown(),
   id: z.string().nullable(),
   error: z.object({ message: z.string() }).nullable(),
 });
 
-const RPCRequest = z.object({
+export const RPCRequest = z.object({
   requestId: z.uuid(),
 });
 
 export const RPCMethods = {
-  estimatesmartfee: {
-    input: RPCRequest.extend({ nblocks: z.number() }),
-    output: RPCResponse.extend({
-      result: z.object({
-        feerate: z.number(),
-        blocks: z.number(),
-      }),
-    }),
-  },
+  estimatesmartfee,
+  getrawtransaction,
+  getnetworkinfo,
 } as const;
 
 export type Methods = typeof RPCMethods;
