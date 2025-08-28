@@ -159,7 +159,7 @@ Description=Cloudflare Tunnel for Dogecoin Core Node
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/cloudflared tunnel run dogecoin-core-node-internal-api --no-autoupdate
+ExecStart=/usr/local/bin/cloudflared tunnel --no-autoupdate run dogecoin-core-node-internal-api
 Restart=always
 User=root
 Environment=HOME=/root
