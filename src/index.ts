@@ -1,12 +1,17 @@
-import { serve } from "@hono/node-server";
-import { app } from "./server";
+import { createHTTPServer } from "@trpc/server/adapters/standalone";
+import { appRouter } from "./server";
+import { env } from "./lib/env";
 
-serve(
-  {
-    fetch: app.fetch,
-    port: 3000,
-  },
-  (info) => {
-    console.log(`🚀 Dogecoin API is running on http://localhost:${info.port}`);
-  }
-);
+const server = createHTTPServer({
+	router: appRouter,
+	onError:
+		env.NODE_ENV === "development"
+			? ({ path, error }) => {
+					console.error(
+						`❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`,
+					);
+				}
+			: undefined,
+});
+
+server.listen(3000);

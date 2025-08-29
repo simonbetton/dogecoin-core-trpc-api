@@ -1,8 +1,8 @@
-# 🐕 Dogecoin Core Node Internal API™
+# 🐕 Dogecoin Core tRPC API
 
 ## 🌟 Project Description
 
-The `dogecoin-core-api` project is a Node.js-based API designed to interact with Dogecoin Core. It uses modern TypeScript tooling and libraries like `hono` for building web servers, `zod` for validation, and `ky` for HTTP requests. The project is modular and follows best practices for scalability and maintainability.
+The `dogecoin-core-trpc-api` project is a Node.js-based API designed to interact with Dogecoin Core. It uses modern TypeScript tooling and libraries like `hono` for building web servers, `zod` for validation, and `ky` for HTTP requests. The project is modular and follows best practices for scalability and maintainability.
 
 This API is designed to be private and limited in scope, providing a secure interface to the Dogecoin Core RPC API. It is intended to be accessed exclusively via a Cloudflare Tunnel and paired with a Cloudflare Workers project for seamless and secure access.
 
