@@ -104,9 +104,9 @@ Refer to the `build` and `publish` sections above for the necessary commands to 
 Set the following environment variables to configure the API:
 
 ```bash
-export DOGECOIN_RPC_USER=<your_rpc_username>
-export DOGECOIN_RPC_PASSWORD=<your_rpc_password>
-export DOGECOIN_RPC_HOST=<your_dogecoin_node_ip>
+export RPC_USER=<your_rpc_username>
+export RPC_PASSWORD=<your_rpc_password>
+export RPC_HOST=<your_dogecoin_node_ip>
 ```
 
 ### 🚀 Start the API
@@ -159,7 +159,7 @@ Description=Cloudflare Tunnel for Dogecoin Core Node
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/cloudflared tunnel run dogecoin-core-node-internal-api --no-autoupdate
+ExecStart=/usr/local/bin/cloudflared tunnel --no-autoupdate run dogecoin-core-node-internal-api
 Restart=always
 User=root
 Environment=HOME=/root
