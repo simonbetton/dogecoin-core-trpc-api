@@ -40,6 +40,7 @@ This API is designed to be private and limited in scope, providing a secure inte
 
 ```bash
 rsync -avz <location-to-project>/dist/ root@<droplet-ip>:~/dogecoin-core-api/
+pm2 restart API
 ```
 
 - **Description**: Deploys the built application to a remote server using `rsync`.

@@ -1,3 +1,4 @@
+import { TRPCClientError } from "@trpc/client";
 import { trpc } from "../src/client";
 
 /**
@@ -43,12 +44,92 @@ async function main() {
     console.log("\n📄 Getting raw transaction...");
     const rawTx = await client.getRawTransaction.query({
       requestId: `raw-tx-${Date.now()}`,
-      txid: "919e7ea9f5ca0d52a940bcd8c3287c3a0459094a31d75ef46b2b66fb09af22c0 ", // Some random txid
+      txid: "919e7ea9f5ca0d52a940bcd8c3287c3a0459094a31d75ef46b2b66fb09af22c0", // Some random txid
       verbose: true,
     });
     console.log("Raw Transaction:", rawTx);
+    console.log("Raw Transaction error:", rawTx.error);
+
+    // Get best block hash
+    console.log("\n🔗 Getting best block hash...");
+    const bestBlockHash = await client.getBestBlockHash.query({
+      requestId: `best-block-hash-${Date.now()}`,
+    });
+    console.log("Best Block Hash:", bestBlockHash.result);
+
+    // Get block count
+    console.log("\n📊 Getting block count...");
+    const blockCount = await client.getBlockCount.query({
+      requestId: `block-count-${Date.now()}`,
+    });
+    console.log("Block Count:", blockCount.result);
+
+    // Get block hash by height
+    console.log("\n🔢 Getting block hash by height...");
+    const blockHash = await client.getBlockHash.query({
+      requestId: `block-hash-${Date.now()}`,
+      height: 1000000,
+    });
+    console.log("Block Hash at height 1000000:", blockHash.result);
+
+    // Get block details
+    console.log("\n📦 Getting block details...");
+    const block = await client.getBlock.query({
+      requestId: `block-${Date.now()}`,
+      blockhash: bestBlockHash.result,
+      verbosity: 1,
+    });
+    if (typeof block.result === "object") {
+      console.log("Block:", block.result);
+    }
+
+    // Get mempool info
+    console.log("\n🏊 Getting mempool info...");
+    const mempoolInfo = await client.getMempoolInfo.query({
+      requestId: `mempool-info-${Date.now()}`,
+    });
+    console.log("Mempool Info:", mempoolInfo.result);
+
+    // Get raw mempool
+    console.log("\n📋 Getting raw mempool...");
+    const rawMempool = await client.getRawMempool.query({
+      requestId: `raw-mempool-${Date.now()}`,
+      verbose: false,
+    });
+    if (Array.isArray(rawMempool.result)) {
+      console.log("Mempool Transactions:", rawMempool.result.length, "txs");
+    }
+
+    // Validate address
+    console.log("\n✅ Validating address...");
+    const addressValidation = await client.validateAddress.query({
+      requestId: `validate-address-${Date.now()}`,
+      address: "DLWeDczVb1a6E3nSBD1FSqkPL4zUggybxF",
+    });
+    console.log("Address Validation:", addressValidation.result);
+
+    // Ping
+    console.log("\n🏓 Sending ping...");
+    const ping = await client.ping.query({
+      requestId: `ping-${Date.now()}`,
+    });
+    console.log("Ping:", ping.result === null ? "success" : ping.result);
+
+    // Send raw transaction (example - commented out as it requires a valid signed tx)
+    console.log("\n📤 Sending raw transaction...");
+    const sendTx = await client.sendRawTransaction.mutate({
+      requestId: `send-tx-${Date.now()}`,
+      hexstring:
+        "0100000001985449e5af3582c68c0b642b757536780105a05434a185f54e3a95b9d2d434ed0000000000ffffffff0100ca9a3b000000001976a914a89d10e3df3b42d43930944c2f3cffddcf916e2188ac00000000",
+    });
+    console.log("Transaction Hash:", sendTx.result);
+    console.error("Send Raw Transaction error:", sendTx.error);
   } catch (error) {
-    console.error("❌ Error:", error);
+    if (error instanceof TRPCClientError) {
+      console.error(`❌ tRPC Error: ${error.message}`);
+    } else {
+      console.error("❌ Unknown Error:", error);
+    }
 
     if (error instanceof Error) {
       if (error.message.includes("fetch")) {

@@ -1,43 +1,80 @@
-import type { Options, ResponsePromise } from "ky";
+import { TRPCError } from "@trpc/server";
+import type { Options } from "ky";
 import { env } from "./env";
-import { createHttpClient } from "./http-client";
-import type { Inputs, Outputs } from "./schemas";
+import { createHttpClient, HTTPError } from "./http-client";
+import type { Inputs } from "./schemas";
 
 const client = createHttpClient("DOGECOIN_CORE_RPC_API_CLIENT", {
-	prefixUrl: env.RPC_URL,
-	headers: {
-		"user-agent": "internal-dogecoin-core-api",
-		Authorization: `Basic ${Buffer.from(
-			`${env.RPC_USER}:${env.RPC_PASS}`,
-		).toString("base64")}`,
-	},
+  prefixUrl: env.RPC_URL,
+  headers: {
+    "user-agent": "internal-dogecoin-core-api",
+    Authorization: `Basic ${Buffer.from(
+      `${env.RPC_USER}:${env.RPC_PASS}`,
+    ).toString("base64")}`,
+  },
 });
 
-export const dogecoinCoreRpcApi = ({
-	methodName,
-	args,
-	options,
+export async function dogecoinCoreRpcApi<T>({
+  methodName,
+  args,
+  options,
 }: {
-	methodName: MethodName;
-	args: Inputs;
-	options?: Omit<Options, "method" | "json">;
-}): ResponsePromise<Outputs> => {
-	// Extract requestId from args, use the rest as RPC parameters
-	const { requestId, ...params } = args;
-	return client.post("", {
-		json: {
-			jsonrpc: "1.0",
-			id: requestId,
-			method: methodName,
-			params: Object.values(params), // Convert to array for JSON-RPC
-		},
-		...options,
-	});
-};
+  methodName: MethodName;
+  args: Inputs;
+  options?: Omit<Options, "method" | "json">;
+}): Promise<T> {
+  // Extract requestId from args, use the rest as RPC parameters
+  const { requestId, ...params } = args;
+
+  try {
+    const response = await client.post("", {
+      json: {
+        jsonrpc: "1.0",
+        id: requestId,
+        method: methodName,
+        params: Object.values(params), // Convert to array for JSON-RPC
+      },
+      ...options,
+    });
+    return (await response.json()) as T;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      let errorBody:
+        | { error?: { message?: string; code?: number } }
+        | undefined;
+      try {
+        errorBody = await error.response.json();
+      } catch {
+        // Failed to parse JSON body
+      }
+
+      const message =
+        errorBody?.error?.message ||
+        `RPC request failed with status ${error.response.status}`;
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message,
+        cause: errorBody,
+      });
+    }
+    throw error;
+  }
+}
 
 const SupportedDogecoinCoreRPCMethods = [
-	"estimatesmartfee",
-	"getrawtransaction",
-	"getnetworkinfo",
+  "estimatesmartfee",
+  "getrawtransaction",
+  "getnetworkinfo",
+  "getblockhash",
+  "getblock",
+  "getrawmempool",
+  "getmempoolinfo",
+  "getbestblockhash",
+  "getblockcount",
+  "uptime",
+  "validateaddress",
+  "ping",
+  "sendrawtransaction",
 ] as const;
 type MethodName = (typeof SupportedDogecoinCoreRPCMethods)[number];
