@@ -43,15 +43,35 @@ npm install dogecoin-core-trpc-api
 ```ts
 import { createDogecoinCoreClient } from "dogecoin-core-trpc-api/client";
 
-const client = createDogecoinCoreClient({
-  url: "https://<your-tunnel-domain>/trpc",
-});
+const client = createDogecoinCoreClient();
 
 const health = await client.health.query();
 console.log(health);
 ```
 
-> Note: The `url` should point to the tRPC endpoint (default is `/trpc`).
+By default, the client targets `https://rpc.dogeapi.io`.
+
+To point at a custom deployment, provide a URL that matches your tRPC endpoint:
+
+```ts
+const client = createDogecoinCoreClient({
+  url: "https://<your-tunnel-domain>/trpc",
+});
+```
+
+---
+
+## Library Usage
+
+You can embed the server in another Node.js app by importing the router:
+
+```ts
+import { createHTTPServer } from "@trpc/server/adapters/standalone";
+import { appRouter } from "dogecoin-core-trpc-api/server";
+
+const server = createHTTPServer({ router: appRouter });
+server.listen(3000);
+```
 
 ### 🚀 Start
 

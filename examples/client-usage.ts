@@ -10,9 +10,7 @@ import { createDogecoinCoreClient } from "../src/client";
 async function main() {
   console.log("🚀 Dogecoin Core tRPC API Client Example");
 
-  const client = createDogecoinCoreClient({
-    url: "https://rpc.dogeapi.io/trpc",
-  });
+  const client = createDogecoinCoreClient();
 
   try {
     // Health check

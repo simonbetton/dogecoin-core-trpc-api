@@ -4,16 +4,25 @@ import type { AppRouter } from "../server";
 
 type HttpBatchLinkOptions = Parameters<typeof httpBatchLink>[0];
 
+export const DEFAULT_TRPC_URL = "https://rpc.dogeapi.io";
+
 export type DogecoinCoreClientOptions = Omit<
   HttpBatchLinkOptions,
-  "transformer"
->;
+  "transformer" | "url"
+> & {
+  url?: HttpBatchLinkOptions["url"];
+};
 
-export function createDogecoinCoreClient(options: DogecoinCoreClientOptions) {
+export function createDogecoinCoreClient(
+  options: DogecoinCoreClientOptions = {},
+) {
+  const { url = DEFAULT_TRPC_URL, ...rest } = options;
+
   return createTRPCClient<AppRouter>({
     links: [
       httpBatchLink({
-        ...options,
+        ...rest,
+        url,
         transformer: superjson,
       }),
     ],
