@@ -14,7 +14,7 @@
     "start": "node dist/index.cjs",
     "example": "tsx examples/client-usage.ts",
     "release": "standard-version",
-    "postrelease": "git push --follow-tags origin main"
+    "postrelease": "git push --follow-tags origin master"
   },
   "exports": {
     ".": {
