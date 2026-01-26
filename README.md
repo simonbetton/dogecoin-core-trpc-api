@@ -220,3 +220,22 @@ sudo systemctl daemon-reload
 sudo systemctl enable cloudflared-doge
 sudo systemctl start cloudflared-doge
 ```
+
+## 🔖 Releasing
+
+This project uses `standard-version` to generate changelogs and bump semantic versions.
+
+Local release steps:
+
+```bash
+# install dev dependency
+npm install --save-dev standard-version
+
+# create a release based on Conventional Commits (or use --release-as)
+npm run release
+
+# push created tag and release commit (if not using CI)
+git push --follow-tags origin main
+```
+
+If you prefer automated releases in CI, the repository includes a GitHub Actions workflow that runs `npm run release` on pushes to `main`. Ensure commits follow Conventional Commits (feat:, fix:, chore:, BREAKING CHANGE) to get automatic semantic versioning. If you don't follow that convention, you can control the bump with `--release-as <patch|minor|major>`.
