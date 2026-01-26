@@ -1,5 +1,5 @@
 import { TRPCClientError } from "@trpc/client";
-import { createDogecoinCoreClient } from "../src/client";
+import { createDogecoinCoreClient } from "../dist/client";
 
 /**
  * Example: Using the Dogecoin Core tRPC API Client
