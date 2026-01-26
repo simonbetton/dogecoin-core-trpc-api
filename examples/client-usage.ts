@@ -1,5 +1,5 @@
 import { TRPCClientError } from "@trpc/client";
-import { trpc } from "../src/client";
+import { createDogecoinCoreClient } from "../dist/client";
 
 /**
  * Example: Using the Dogecoin Core tRPC API Client
@@ -10,8 +10,7 @@ import { trpc } from "../src/client";
 async function main() {
   console.log("🚀 Dogecoin Core tRPC API Client Example");
 
-  // Use tRPC client from client exported
-  const client = trpc;
+  const client = createDogecoinCoreClient();
 
   try {
     // Health check

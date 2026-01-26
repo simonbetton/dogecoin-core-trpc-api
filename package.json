@@ -5,11 +5,30 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prebuild": "biome format --write && biome lint .",
+    "prebuild": "npm run format && npm run lint",
     "dev": "dotenvx run -- tsx watch src/index.ts",
-    "build": "tsup src/index.ts src/client.ts --dts",
+    "format": "biome format --write .",
+    "lint": "biome lint --write .",
+    "build": "tsup",
     "start": "node dist/index.cjs",
     "example": "tsx examples/client-usage.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.js",
+      "require": "./dist/client/index.cjs"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.cjs"
+    }
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.8",
@@ -23,9 +42,14 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.11",
     "@dotenvx/dotenvx": "^1.51.1",
-    "@types/node": "^20.11.17",
+    "@types/node": "^25.0.10",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }
