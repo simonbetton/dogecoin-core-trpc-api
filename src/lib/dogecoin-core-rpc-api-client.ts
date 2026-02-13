@@ -64,17 +64,19 @@ export async function dogecoinCoreRpcApi<T>({
 
 const SupportedDogecoinCoreRPCMethods = [
   "estimatesmartfee",
-  "getrawtransaction",
-  "getnetworkinfo",
-  "getblockhash",
-  "getblock",
-  "getrawmempool",
-  "getmempoolinfo",
   "getbestblockhash",
+  "getblock",
+  "getblockchaininfo",
   "getblockcount",
-  "uptime",
-  "validateaddress",
+  "getblockhash",
+  "getmempoolinfo",
+  "getnetworkinfo",
+  "getrawmempool",
+  "getrawtransaction",
+  "listunspent",
   "ping",
   "sendrawtransaction",
+  "uptime",
+  "validateaddress",
 ] as const;
 type MethodName = (typeof SupportedDogecoinCoreRPCMethods)[number];

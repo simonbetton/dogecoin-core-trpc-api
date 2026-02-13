@@ -216,9 +216,66 @@ export const GetBlockCountOutputSchema = z.extend(RPCResponse, {
   result: z.number(), // current block count
 });
 
+export const GetBlockchainInfoInputSchema = z.extend(RPCRequest, {});
+export const GetBlockchainInfoOutputSchema = z.extend(RPCResponse, {
+  result: z.object({
+    chain: z.string(),
+    blocks: z.number(),
+    headers: z.number(),
+    bestblockhash: z.string(),
+    difficulty: z.number(),
+    mediantime: z.number(),
+    verificationprogress: z.number(),
+    initialblockdownload: z.boolean(),
+    chainwork: z.string(),
+    size_on_disk: z.number(),
+    pruned: z.boolean(),
+    pruneheight: z.optional(z.number()),
+    automatic_pruning: z.optional(z.boolean()),
+    prune_target_size: z.optional(z.number()),
+    softforks: z.optional(
+      z.union([z.array(z.unknown()), z.record(z.string(), z.unknown())]),
+    ),
+    bip9_softforks: z.optional(z.record(z.string(), z.unknown())),
+    warnings: z.optional(z.string()),
+  }),
+});
+
 export const UptimeInputSchema = z.extend(RPCRequest, {});
 export const UptimeOutputSchema = z.extend(RPCResponse, {
   result: z.number(), // seconds server has been running
+});
+
+export const ListUnspentInputSchema = z.extend(RPCRequest, {
+  minconf: z.optional(z.number()),
+  maxconf: z.optional(z.number()),
+  addresses: z.optional(z.array(z.string())),
+  include_unsafe: z.optional(z.boolean()),
+  query_options: z.optional(
+    z.object({
+      minimumAmount: z.optional(z.number()),
+      maximumAmount: z.optional(z.number()),
+      maximumCount: z.optional(z.number()),
+      minimumSumAmount: z.optional(z.number()),
+    }),
+  ),
+});
+export const ListUnspentOutputSchema = z.extend(RPCResponse, {
+  result: z.array(
+    z.object({
+      txid: z.string(),
+      vout: z.number(),
+      address: z.optional(z.string()),
+      account: z.optional(z.string()),
+      scriptPubKey: z.string(),
+      amount: z.number(),
+      confirmations: z.number(),
+      redeemScript: z.optional(z.string()),
+      spendable: z.boolean(),
+      solvable: z.boolean(),
+      safe: z.optional(z.boolean()),
+    }),
+  ),
 });
 
 export const ValidateAddressInputSchema = z.extend(RPCRequest, {
@@ -259,7 +316,9 @@ export type Inputs =
   | z.infer<typeof GetMempoolInfoInputSchema>
   | z.infer<typeof GetBestBlockHashInputSchema>
   | z.infer<typeof GetBlockCountInputSchema>
+  | z.infer<typeof GetBlockchainInfoInputSchema>
   | z.infer<typeof UptimeInputSchema>
+  | z.infer<typeof ListUnspentInputSchema>
   | z.infer<typeof ValidateAddressInputSchema>
   | z.infer<typeof PingInputSchema>
   | z.infer<typeof SendRawTransactionInputSchema>;
@@ -274,7 +333,9 @@ export type Outputs =
   | z.infer<typeof GetMempoolInfoOutputSchema>
   | z.infer<typeof GetBestBlockHashOutputSchema>
   | z.infer<typeof GetBlockCountOutputSchema>
+  | z.infer<typeof GetBlockchainInfoOutputSchema>
   | z.infer<typeof UptimeOutputSchema>
+  | z.infer<typeof ListUnspentOutputSchema>
   | z.infer<typeof ValidateAddressOutputSchema>
   | z.infer<typeof PingOutputSchema>
   | z.infer<typeof SendRawTransactionOutputSchema>;

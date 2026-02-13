@@ -63,6 +63,20 @@ async function main() {
     });
     console.log("Block Count:", blockCount.result);
 
+    // Get blockchain info
+    console.log("\n⛓️ Getting blockchain info...");
+    const blockchainInfo = await client.getBlockchainInfo.query({
+      requestId: `blockchain-info-${Date.now()}`,
+    });
+    console.log("Blockchain Info:", {
+      chain: blockchainInfo.result.chain,
+      blocks: blockchainInfo.result.blocks,
+      headers: blockchainInfo.result.headers,
+      bestblockhash: blockchainInfo.result.bestblockhash,
+      verificationprogress: blockchainInfo.result.verificationprogress,
+      pruned: blockchainInfo.result.pruned,
+    });
+
     // Get block hash by height
     console.log("\n🔢 Getting block hash by height...");
     const blockHash = await client.getBlockHash.query({
@@ -99,6 +113,17 @@ async function main() {
       console.log("Mempool Transactions:", rawMempool.result.length, "txs");
     }
 
+    // List unspent outputs
+    console.log("\n💼 Listing unspent outputs...");
+    const unspent = await client.listUnspent.query({
+      requestId: `listunspent-${Date.now()}`,
+      minconf: 1,
+      maxconf: 9999999,
+      addresses: [],
+      include_unsafe: true,
+    });
+    console.log("List Unspent:", unspent.result);
+
     // Validate address
     console.log("\n✅ Validating address...");
     const addressValidation = await client.validateAddress.query({
@@ -115,14 +140,14 @@ async function main() {
     console.log("Ping:", ping.result === null ? "success" : ping.result);
 
     // Send raw transaction (example - commented out as it requires a valid signed tx)
-    console.log("\n📤 Sending raw transaction...");
-    const sendTx = await client.sendRawTransaction.mutate({
-      requestId: `send-tx-${Date.now()}`,
-      hexstring:
-        "0100000001985449e5af3582c68c0b642b757536780105a05434a185f54e3a95b9d2d434ed0000000000ffffffff0100ca9a3b000000001976a914a89d10e3df3b42d43930944c2f3cffddcf916e2188ac00000000",
-    });
-    console.log("Transaction Hash:", sendTx.result);
-    console.error("Send Raw Transaction error:", sendTx.error);
+    // console.log("\n📤 Sending raw transaction...");
+    // const sendTx = await client.sendRawTransaction.mutate({
+    //   requestId: `send-tx-${Date.now()}`,
+    //   hexstring:
+    //     "0100000001985449e5af3582c68c0b642b757536780105a05434a185f54e3a95b9d2d434ed0000000000ffffffff0100ca9a3b000000001976a914a89d10e3df3b42d43930944c2f3cffddcf916e2188ac00000000",
+    // });
+    // console.log("Transaction Hash:", sendTx.result);
+    // console.error("Send Raw Transaction error:", sendTx.error);
   } catch (error) {
     if (error instanceof TRPCClientError) {
       console.error(`❌ tRPC Error: ${error.message}`);

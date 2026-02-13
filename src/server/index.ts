@@ -6,6 +6,8 @@ import {
   GetBestBlockHashOutputSchema,
   GetBlockCountInputSchema,
   GetBlockCountOutputSchema,
+  GetBlockchainInfoInputSchema,
+  GetBlockchainInfoOutputSchema,
   GetBlockHashInputSchema,
   GetBlockHashOutputSchema,
   GetBlockInputSchema,
@@ -18,6 +20,8 @@ import {
   GetRawMempoolOutputSchema,
   GetRawTransactionInputSchema,
   GetRawTransactionOutputSchema,
+  ListUnspentInputSchema,
+  ListUnspentOutputSchema,
   PingInputSchema,
   PingOutputSchema,
   SendRawTransactionInputSchema,
@@ -104,6 +108,33 @@ export const appRouter = router({
       return await dogecoinCoreRpcApi({
         methodName: "getblockcount",
         args: input,
+      });
+    }),
+  getBlockchainInfo: publicProcedure
+    .input(GetBlockchainInfoInputSchema)
+    .output(GetBlockchainInfoOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getblockchaininfo",
+        args: input,
+      });
+    }),
+  listUnspent: publicProcedure
+    .input(ListUnspentInputSchema)
+    .output(ListUnspentOutputSchema)
+    .query(async ({ input }) => {
+      const args = {
+        requestId: input.requestId,
+        minconf: input.minconf ?? 1,
+        maxconf: input.maxconf ?? 9999999,
+        addresses: input.addresses ?? [],
+        include_unsafe: input.include_unsafe ?? true,
+        ...(input.query_options ? { query_options: input.query_options } : {}),
+      };
+
+      return await dogecoinCoreRpcApi({
+        methodName: "listunspent",
+        args,
       });
     }),
   validateAddress: publicProcedure
