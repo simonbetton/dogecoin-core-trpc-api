@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/simonbetton/dogecoin-core-trpc-api/compare/v0.0.1...v0.0.2) (2026-02-13)
+
+
+### Features
+
+* add blockchain info and list unspent outputs to client usage example and API ([af4f05d](https://github.com/simonbetton/dogecoin-core-trpc-api/commit/af4f05dc7fac9fc642d8020722f721ed2ebc08e0))
+
 ### 0.0.1 (2026-01-26)
 
 
