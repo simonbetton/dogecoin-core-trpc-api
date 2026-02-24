@@ -18,6 +18,13 @@ async function main() {
     const health = await client.health.query();
     console.log("Health:", health);
 
+    // Get Difficulty
+    console.log("\n📈 Getting difficulty...");
+    const networkDifficulty = await client.getDifficulty.query({
+      requestId: `difficulty-${Date.now()}`,
+    });
+    console.log("Network Difficulty:", networkDifficulty.result);
+
     // Get network information
     console.log("\n🌐 Getting network information...");
     const networkInfo = await client.getNetworkInfo.query({
@@ -63,13 +70,23 @@ async function main() {
     });
     console.log("Block Count:", blockCount.result);
 
+    // Get network hash rate estimate
+    console.log("\n⛏️ Getting network hash rate...");
+    const networkHashPs = await client.getNetworkHashPs.query({
+      requestId: `network-hash-ps-${Date.now()}`,
+      nblocks: 120,
+      height: -1,
+    });
+    if (networkHashPs) {
+      console.log("Network Hash PS:", networkHashPs.result);
+    }
+
     // Get blockchain info
     console.log("\n⛓️ Getting blockchain info...");
     const blockchainInfo = await client.getBlockchainInfo.query({
       requestId: `blockchain-info-${Date.now()}`,
     });
     console.log("Blockchain Info:", {
-      chain: blockchainInfo.result.chain,
       blocks: blockchainInfo.result.blocks,
       headers: blockchainInfo.result.headers,
       bestblockhash: blockchainInfo.result.bestblockhash,
@@ -96,6 +113,26 @@ async function main() {
       console.log("Block:", block.result);
     }
 
+    // Get block header
+    console.log("\n🧱 Getting block header...");
+    const blockHeader = await client.getBlockHeader.query({
+      requestId: `block-header-${Date.now()}`,
+      blockhash: bestBlockHash.result,
+      verbose: true,
+    });
+    if (blockHeader) {
+      console.log("Block Header:", blockHeader.result);
+    }
+
+    // Get chain tips
+    console.log("\n🌿 Getting chain tips...");
+    const chainTips = await client.getChainTips.query({
+      requestId: `chaintips-${Date.now()}`,
+    });
+    if (chainTips) {
+      console.log("Chain Tips:", chainTips.result.length);
+    }
+
     // Get mempool info
     console.log("\n🏊 Getting mempool info...");
     const mempoolInfo = await client.getMempoolInfo.query({
@@ -113,6 +150,46 @@ async function main() {
       console.log("Mempool Transactions:", rawMempool.result.length, "txs");
     }
 
+    // Get mempool entry/relationships when a mempool tx is available
+    if (Array.isArray(rawMempool.result) && rawMempool.result.length > 0) {
+      const mempoolTxid = rawMempool.result[0];
+      if (!mempoolTxid) {
+        throw new Error("Expected mempool txid to exist");
+      }
+
+      console.log("\n🧾 Getting mempool entry...");
+      const mempoolEntry = await client.getMempoolEntry.query({
+        requestId: `mempool-entry-${Date.now()}`,
+        txid: mempoolTxid,
+      });
+      if (mempoolEntry) {
+        console.log(
+          "Mempool Entry:",
+          "result" in mempoolEntry ? mempoolEntry.result : mempoolEntry,
+        );
+      }
+
+      console.log("\n🧬 Getting mempool ancestors...");
+      const mempoolAncestors = await client.getMempoolAncestors.query({
+        requestId: `mempool-ancestors-${Date.now()}`,
+        txid: mempoolTxid,
+        verbose: false,
+      });
+      if (mempoolAncestors) {
+        console.log("Mempool Ancestors:", mempoolAncestors.result);
+      }
+
+      console.log("\n🧬 Getting mempool descendants...");
+      const mempoolDescendants = await client.getMempoolDescendants.query({
+        requestId: `mempool-descendants-${Date.now()}`,
+        txid: mempoolTxid,
+        verbose: false,
+      });
+      if (mempoolDescendants) {
+        console.log("Mempool Descendants:", mempoolDescendants.result);
+      }
+    }
+
     // List unspent outputs
     console.log("\n💼 Listing unspent outputs...");
     const unspent = await client.listUnspent.query({
@@ -123,6 +200,52 @@ async function main() {
       include_unsafe: true,
     });
     console.log("List Unspent:", unspent.result);
+
+    // Get txout from wallet UTXO if available
+    if (unspent.result.length > 0) {
+      const firstUtxo = unspent.result[0];
+      if (!firstUtxo) {
+        throw new Error("Expected first UTXO to exist");
+      }
+
+      console.log("\n🪙 Getting txout...");
+      const txout = await client.getTxOut.query({
+        requestId: `txout-${Date.now()}`,
+        txid: firstUtxo.txid,
+        n: firstUtxo.vout,
+        include_mempool: true,
+      });
+      if (txout) {
+        console.log("TxOut:", txout.result);
+      }
+    }
+
+    // Build and verify txout proof using the current block when possible
+    if (
+      typeof block.result === "object" &&
+      Array.isArray(block.result.tx) &&
+      typeof block.result.tx[0] === "string"
+    ) {
+      const proofTxid = block.result.tx[0];
+      console.log("\n🧾 Getting txout proof...");
+      const txOutProof = await client.getTxOutProof.query({
+        requestId: `txoutproof-${Date.now()}`,
+        txids: [proofTxid],
+        blockhash: bestBlockHash.result,
+      });
+      if (txOutProof) {
+        console.log("TxOut Proof (hex length):", txOutProof.result.length);
+
+        console.log("\n✅ Verifying txout proof...");
+        const verified = await client.verifyTxOutProof.query({
+          requestId: `verify-txoutproof-${Date.now()}`,
+          proof: txOutProof.result,
+        });
+        if (verified) {
+          console.log("Verified txids:", verified.result);
+        }
+      }
+    }
 
     // Validate address
     console.log("\n✅ Validating address...");

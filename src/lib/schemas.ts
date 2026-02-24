@@ -146,6 +146,32 @@ export const GetBlockOutputSchema = z.extend(RPCResponse, {
   ]),
 });
 
+export const GetBlockHeaderInputSchema = z.extend(RPCRequest, {
+  blockhash: z.string(),
+  verbose: z.optional(z.boolean()),
+});
+export const GetBlockHeaderOutputSchema = z.extend(RPCResponse, {
+  result: z.union([
+    z.string(),
+    z.object({
+      hash: z.string(),
+      confirmations: z.number(),
+      height: z.number(),
+      version: z.number(),
+      versionHex: z.optional(z.string()),
+      merkleroot: z.string(),
+      time: z.number(),
+      mediantime: z.optional(z.number()),
+      nonce: z.number(),
+      bits: z.string(),
+      difficulty: z.number(),
+      chainwork: z.optional(z.string()),
+      previousblockhash: z.optional(z.string()),
+      nextblockhash: z.optional(z.string()),
+    }),
+  ]),
+});
+
 export const GetRawMempoolInputSchema = z.extend(RPCRequest, {
   verbose: z.optional(z.boolean()),
   mempool_sequence: z.optional(z.boolean()),
@@ -192,6 +218,44 @@ export const GetRawMempoolOutputSchema = z.extend(RPCResponse, {
   ]),
 });
 
+const MempoolEntrySchema = z.record(z.string(), z.unknown());
+
+export const GetMempoolEntryInputSchema = z.extend(RPCRequest, {
+  txid: z.string(),
+});
+export const GetMempoolEntryOutputSchema = z.union([
+  z.extend(RPCResponse, {
+    id: z.nullable(z.union([z.string(), z.number()])),
+    error: z.nullable(
+      z.object({ message: z.string(), code: z.optional(z.number()) }),
+    ),
+    result: z.nullable(MempoolEntrySchema),
+  }),
+  MempoolEntrySchema,
+]);
+
+export const GetMempoolAncestorsInputSchema = z.extend(RPCRequest, {
+  txid: z.string(),
+  verbose: z.optional(z.boolean()),
+});
+export const GetMempoolAncestorsOutputSchema = z.extend(RPCResponse, {
+  result: z.union([
+    z.array(z.string()),
+    z.record(z.string(), MempoolEntrySchema),
+  ]),
+});
+
+export const GetMempoolDescendantsInputSchema = z.extend(RPCRequest, {
+  txid: z.string(),
+  verbose: z.optional(z.boolean()),
+});
+export const GetMempoolDescendantsOutputSchema = z.extend(RPCResponse, {
+  result: z.union([
+    z.array(z.string()),
+    z.record(z.string(), MempoolEntrySchema),
+  ]),
+});
+
 export const GetMempoolInfoInputSchema = z.extend(RPCRequest, {});
 export const GetMempoolInfoOutputSchema = z.extend(RPCResponse, {
   result: z.object({
@@ -214,6 +278,19 @@ export const GetBestBlockHashOutputSchema = z.extend(RPCResponse, {
 export const GetBlockCountInputSchema = z.extend(RPCRequest, {});
 export const GetBlockCountOutputSchema = z.extend(RPCResponse, {
   result: z.number(), // current block count
+});
+
+export const GetDifficultyInputSchema = z.extend(RPCRequest, {});
+export const GetDifficultyOutputSchema = z.extend(RPCResponse, {
+  result: z.number(),
+});
+
+export const GetNetworkHashPsInputSchema = z.extend(RPCRequest, {
+  nblocks: z.optional(z.number()),
+  height: z.optional(z.number()),
+});
+export const GetNetworkHashPsOutputSchema = z.extend(RPCResponse, {
+  result: z.number(),
 });
 
 export const GetBlockchainInfoInputSchema = z.extend(RPCRequest, {});
@@ -244,6 +321,41 @@ export const GetBlockchainInfoOutputSchema = z.extend(RPCResponse, {
 export const UptimeInputSchema = z.extend(RPCRequest, {});
 export const UptimeOutputSchema = z.extend(RPCResponse, {
   result: z.number(), // seconds server has been running
+});
+
+export const GetChainTipsInputSchema = z.extend(RPCRequest, {});
+export const GetChainTipsOutputSchema = z.extend(RPCResponse, {
+  result: z.array(
+    z.object({
+      height: z.number(),
+      hash: z.string(),
+      branchlen: z.number(),
+      status: z.string(),
+    }),
+  ),
+});
+
+export const GetTxOutInputSchema = z.extend(RPCRequest, {
+  txid: z.string(),
+  n: z.number(),
+  include_mempool: z.optional(z.boolean()),
+});
+export const GetTxOutOutputSchema = z.extend(RPCResponse, {
+  result: z.nullable(
+    z.object({
+      bestblock: z.string(),
+      confirmations: z.number(),
+      value: z.number(),
+      scriptPubKey: z.object({
+        asm: z.string(),
+        hex: z.string(),
+        reqSigs: z.optional(z.number()),
+        type: z.string(),
+        addresses: z.optional(z.array(z.string())),
+      }),
+      coinbase: z.boolean(),
+    }),
+  ),
 });
 
 export const ListUnspentInputSchema = z.extend(RPCRequest, {
@@ -278,6 +390,21 @@ export const ListUnspentOutputSchema = z.extend(RPCResponse, {
   ),
 });
 
+export const GetTxOutProofInputSchema = z.extend(RPCRequest, {
+  txids: z.array(z.string()),
+  blockhash: z.optional(z.string()),
+});
+export const GetTxOutProofOutputSchema = z.extend(RPCResponse, {
+  result: z.string(),
+});
+
+export const VerifyTxOutProofInputSchema = z.extend(RPCRequest, {
+  proof: z.string(),
+});
+export const VerifyTxOutProofOutputSchema = z.extend(RPCResponse, {
+  result: z.array(z.string()),
+});
+
 export const ValidateAddressInputSchema = z.extend(RPCRequest, {
   address: z.string(),
 });
@@ -307,35 +434,55 @@ export const SendRawTransactionOutputSchema = z.extend(RPCResponse, {
 });
 
 export type Inputs =
-  | z.infer<typeof GetRawTransactionInputSchema>
-  | z.infer<typeof GetNetworkInfoInputSchema>
   | z.infer<typeof EstimateSmartFeeInputSchema>
-  | z.infer<typeof GetBlockHashInputSchema>
-  | z.infer<typeof GetBlockInputSchema>
-  | z.infer<typeof GetRawMempoolInputSchema>
-  | z.infer<typeof GetMempoolInfoInputSchema>
   | z.infer<typeof GetBestBlockHashInputSchema>
   | z.infer<typeof GetBlockCountInputSchema>
+  | z.infer<typeof GetBlockHashInputSchema>
+  | z.infer<typeof GetBlockHeaderInputSchema>
+  | z.infer<typeof GetBlockInputSchema>
   | z.infer<typeof GetBlockchainInfoInputSchema>
-  | z.infer<typeof UptimeInputSchema>
+  | z.infer<typeof GetChainTipsInputSchema>
+  | z.infer<typeof GetDifficultyInputSchema>
+  | z.infer<typeof GetMempoolAncestorsInputSchema>
+  | z.infer<typeof GetMempoolDescendantsInputSchema>
+  | z.infer<typeof GetMempoolEntryInputSchema>
+  | z.infer<typeof GetMempoolInfoInputSchema>
+  | z.infer<typeof GetNetworkHashPsInputSchema>
+  | z.infer<typeof GetNetworkInfoInputSchema>
+  | z.infer<typeof GetRawMempoolInputSchema>
+  | z.infer<typeof GetRawTransactionInputSchema>
+  | z.infer<typeof GetTxOutInputSchema>
+  | z.infer<typeof GetTxOutProofInputSchema>
   | z.infer<typeof ListUnspentInputSchema>
-  | z.infer<typeof ValidateAddressInputSchema>
   | z.infer<typeof PingInputSchema>
-  | z.infer<typeof SendRawTransactionInputSchema>;
+  | z.infer<typeof SendRawTransactionInputSchema>
+  | z.infer<typeof UptimeInputSchema>
+  | z.infer<typeof ValidateAddressInputSchema>
+  | z.infer<typeof VerifyTxOutProofInputSchema>;
 
 export type Outputs =
-  | z.infer<typeof GetRawTransactionOutputSchema>
-  | z.infer<typeof GetNetworkInfoOutputSchema>
   | z.infer<typeof EstimateSmartFeeOutputSchema>
-  | z.infer<typeof GetBlockHashOutputSchema>
-  | z.infer<typeof GetBlockOutputSchema>
-  | z.infer<typeof GetRawMempoolOutputSchema>
-  | z.infer<typeof GetMempoolInfoOutputSchema>
   | z.infer<typeof GetBestBlockHashOutputSchema>
   | z.infer<typeof GetBlockCountOutputSchema>
+  | z.infer<typeof GetBlockHashOutputSchema>
+  | z.infer<typeof GetBlockHeaderOutputSchema>
+  | z.infer<typeof GetBlockOutputSchema>
   | z.infer<typeof GetBlockchainInfoOutputSchema>
-  | z.infer<typeof UptimeOutputSchema>
+  | z.infer<typeof GetChainTipsOutputSchema>
+  | z.infer<typeof GetDifficultyOutputSchema>
+  | z.infer<typeof GetMempoolAncestorsOutputSchema>
+  | z.infer<typeof GetMempoolDescendantsOutputSchema>
+  | z.infer<typeof GetMempoolEntryOutputSchema>
+  | z.infer<typeof GetMempoolInfoOutputSchema>
+  | z.infer<typeof GetNetworkHashPsOutputSchema>
+  | z.infer<typeof GetNetworkInfoOutputSchema>
+  | z.infer<typeof GetRawMempoolOutputSchema>
+  | z.infer<typeof GetRawTransactionOutputSchema>
+  | z.infer<typeof GetTxOutOutputSchema>
+  | z.infer<typeof GetTxOutProofOutputSchema>
   | z.infer<typeof ListUnspentOutputSchema>
-  | z.infer<typeof ValidateAddressOutputSchema>
   | z.infer<typeof PingOutputSchema>
-  | z.infer<typeof SendRawTransactionOutputSchema>;
+  | z.infer<typeof SendRawTransactionOutputSchema>
+  | z.infer<typeof UptimeOutputSchema>
+  | z.infer<typeof ValidateAddressOutputSchema>
+  | z.infer<typeof VerifyTxOutProofOutputSchema>;

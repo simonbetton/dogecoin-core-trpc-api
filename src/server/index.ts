@@ -10,16 +10,34 @@ import {
   GetBlockchainInfoOutputSchema,
   GetBlockHashInputSchema,
   GetBlockHashOutputSchema,
+  GetBlockHeaderInputSchema,
+  GetBlockHeaderOutputSchema,
   GetBlockInputSchema,
   GetBlockOutputSchema,
+  GetChainTipsInputSchema,
+  GetChainTipsOutputSchema,
+  GetDifficultyInputSchema,
+  GetDifficultyOutputSchema,
+  GetMempoolAncestorsInputSchema,
+  GetMempoolAncestorsOutputSchema,
+  GetMempoolDescendantsInputSchema,
+  GetMempoolDescendantsOutputSchema,
+  GetMempoolEntryInputSchema,
+  GetMempoolEntryOutputSchema,
   GetMempoolInfoInputSchema,
   GetMempoolInfoOutputSchema,
+  GetNetworkHashPsInputSchema,
+  GetNetworkHashPsOutputSchema,
   GetNetworkInfoInputSchema,
   GetNetworkInfoOutputSchema,
   GetRawMempoolInputSchema,
   GetRawMempoolOutputSchema,
   GetRawTransactionInputSchema,
   GetRawTransactionOutputSchema,
+  GetTxOutInputSchema,
+  GetTxOutOutputSchema,
+  GetTxOutProofInputSchema,
+  GetTxOutProofOutputSchema,
   ListUnspentInputSchema,
   ListUnspentOutputSchema,
   PingInputSchema,
@@ -28,6 +46,8 @@ import {
   SendRawTransactionOutputSchema,
   ValidateAddressInputSchema,
   ValidateAddressOutputSchema,
+  VerifyTxOutProofInputSchema,
+  VerifyTxOutProofOutputSchema,
 } from "../lib/schemas";
 import { publicProcedure, router } from "./trpc";
 
@@ -74,12 +94,66 @@ export const appRouter = router({
     .query(async ({ input }) => {
       return await dogecoinCoreRpcApi({ methodName: "getblock", args: input });
     }),
+  getBlockHeader: publicProcedure
+    .input(GetBlockHeaderInputSchema)
+    .output(GetBlockHeaderOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getblockheader",
+        args: input,
+      });
+    }),
+  getTxOut: publicProcedure
+    .input(GetTxOutInputSchema)
+    .output(GetTxOutOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "gettxout",
+        args: input,
+      });
+    }),
+  getChainTips: publicProcedure
+    .input(GetChainTipsInputSchema)
+    .output(GetChainTipsOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getchaintips",
+        args: input,
+      });
+    }),
   getRawMempool: publicProcedure
     .input(GetRawMempoolInputSchema)
     .output(GetRawMempoolOutputSchema)
     .query(async ({ input }) => {
       return await dogecoinCoreRpcApi({
         methodName: "getrawmempool",
+        args: input,
+      });
+    }),
+  getMempoolEntry: publicProcedure
+    .input(GetMempoolEntryInputSchema)
+    .output(GetMempoolEntryOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getmempoolentry",
+        args: input,
+      });
+    }),
+  getMempoolAncestors: publicProcedure
+    .input(GetMempoolAncestorsInputSchema)
+    .output(GetMempoolAncestorsOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getmempoolancestors",
+        args: input,
+      });
+    }),
+  getMempoolDescendants: publicProcedure
+    .input(GetMempoolDescendantsInputSchema)
+    .output(GetMempoolDescendantsOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getmempooldescendants",
         args: input,
       });
     }),
@@ -110,6 +184,30 @@ export const appRouter = router({
         args: input,
       });
     }),
+  getDifficulty: publicProcedure
+    .input(GetDifficultyInputSchema)
+    .output(GetDifficultyOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "getdifficulty",
+        args: input,
+      });
+    }),
+  getNetworkHashPs: publicProcedure
+    .input(GetNetworkHashPsInputSchema)
+    .output(GetNetworkHashPsOutputSchema)
+    .query(async ({ input }) => {
+      const args = {
+        requestId: input.requestId,
+        nblocks: input.nblocks ?? 120,
+        height: input.height ?? -1,
+      };
+
+      return await dogecoinCoreRpcApi({
+        methodName: "getnetworkhashps",
+        args,
+      });
+    }),
   getBlockchainInfo: publicProcedure
     .input(GetBlockchainInfoInputSchema)
     .output(GetBlockchainInfoOutputSchema)
@@ -135,6 +233,24 @@ export const appRouter = router({
       return await dogecoinCoreRpcApi({
         methodName: "listunspent",
         args,
+      });
+    }),
+  getTxOutProof: publicProcedure
+    .input(GetTxOutProofInputSchema)
+    .output(GetTxOutProofOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "gettxoutproof",
+        args: input,
+      });
+    }),
+  verifyTxOutProof: publicProcedure
+    .input(VerifyTxOutProofInputSchema)
+    .output(VerifyTxOutProofOutputSchema)
+    .query(async ({ input }) => {
+      return await dogecoinCoreRpcApi({
+        methodName: "verifytxoutproof",
+        args: input,
       });
     }),
   validateAddress: publicProcedure
