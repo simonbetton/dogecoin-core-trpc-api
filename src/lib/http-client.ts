@@ -12,7 +12,7 @@ export function createHttpClient(name: string, options: Options) {
       },
       hooks: {
         beforeRequest: [
-          (request) => {
+          ({ request }) => {
             // Log request details
             console.info(`>>> ${name}: ${request.method} ${request.url}`, {
               url: request.url,
@@ -20,7 +20,7 @@ export function createHttpClient(name: string, options: Options) {
           },
         ],
         afterResponse: [
-          (request, _options, response) => {
+          ({ request, response }) => {
             const cleanHeaders = Object.fromEntries(request.headers.entries());
             // Remove sensitive headers
             delete cleanHeaders.authorization;
@@ -37,12 +37,12 @@ export function createHttpClient(name: string, options: Options) {
               response
                 .clone()
                 .text()
-                .then((body) => {
+                .then((body: string) => {
                   console.error(
                     `❌ ${name} Error: ${request.method} ${request.url} - Status: ${response.status} - Body: ${body}`,
                   );
                 })
-                .catch((err) => {
+                .catch((err: unknown) => {
                   console.error(`❌ ${name} Error reading response body:`, err);
                 });
             }

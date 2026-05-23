@@ -5,7 +5,7 @@ import { createHttpClient, HTTPError } from "./http-client";
 import type { Inputs } from "./schemas";
 
 const client = createHttpClient("DOGECOIN_CORE_RPC_API_CLIENT", {
-  prefixUrl: env.RPC_URL,
+  prefix: env.RPC_URL,
   headers: {
     "user-agent": "internal-dogecoin-core-api",
     Authorization: `Basic ${Buffer.from(
