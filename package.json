@@ -5,6 +5,13 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonbetton/dogecoin-core-trpc-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/simonbetton/dogecoin-core-trpc-api/issues"
+  },
   "scripts": {
     "prebuild": "npm run format && npm run lint",
     "dev": "dotenvx run -- tsx watch src/index.ts",
