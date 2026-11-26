@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/simonbetton/dogecoin-core-trpc-api/compare/v0.0.5...v0.0.6) (2026-11-26)
+
 ### [0.0.5](https://github.com/simonbetton/dogecoin-core-trpc-api/compare/v0.0.4...v0.0.5) (2026-05-24)
 
 ### [0.0.4](https://github.com/simonbetton/dogecoin-core-trpc-api/compare/v0.0.3...v0.0.4) (2026-05-23)
