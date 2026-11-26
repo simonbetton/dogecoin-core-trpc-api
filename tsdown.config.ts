@@ -9,7 +9,11 @@ export default defineConfig({
 	sourcemap: false,
 	clean: true,
 	dts: true,
-  deps: {
-    alwaysBundle: [/./],
-  },
+	// Keep `.js` / `.d.ts` for ESM. tsdown 0.23 defaults to `.mjs` / `.mts`
+	// on the node platform, which would miss the paths in package.json exports.
+	fixedExtension: false,
+	deps: {
+		alwaysBundle: [/./],
+		onlyBundle: false,
+	},
 });
