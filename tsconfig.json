@@ -27,6 +27,7 @@
 		"noEmit": true,
 
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"types": ["node"],
 
 		"noErrorTruncation": true // TLDR - Don't truncate errors (useful for debugging)
 	}
